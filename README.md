@@ -10,6 +10,9 @@ RLS - Regularized Least Squares
 AOV - Average of Observed Values
 kNN - k-Nearest Neighbor
 kMeans - k-Means 
+ANN - Neural Network
+SP - Simple Perceptron
+ADALINE - Adaline
 ```
 
 ## **Requirements**
