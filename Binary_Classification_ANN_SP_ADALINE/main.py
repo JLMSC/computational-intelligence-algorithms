@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 # Carrega o dataset 'DataAV2.csv'
-df = np.loadtxt('DataAV2.csv', delimiter=',')
+df = np.loadtxt('Binary_Classification_ANN_SP_ADALINE/DataAV2.csv', delimiter=',')
 
 # Qntd. de Amostras (N) e Qntd. de Variáveis (p)
 N, p = df.shape
@@ -23,6 +23,7 @@ A implementação dos modelos PS e ADALINE deve ser
 realizada com base no pseudocódigo e implementações
 disponibilizadas em sala de aula.
 """
+from adaline import ADALINE
 from percepton_simples import PerceptronSimples
 
 
@@ -32,14 +33,14 @@ gráfico de espalhamento. Nessa etapa, faça uma discussão
 inicial sobre quais resultados poderão ser obtidos ao
 utilizar o perceptron simples e o ADALINE.
 """
-# fig = plt.figure(figsize=(10, 6))
-# plt.scatter(X[:, 0], X[:, 1], c=Y, cmap='viridis')
-# plt.xlabel('Variável Independente: X1')
-# plt.ylabel('Variável Independente: X2')
-# plt.title('Gráfico de Dispersão\nClassificação Binária')
-# cbar = plt.colorbar(label='Variável Dependente: Y')
-# cbar.set_ticks([Y.min(), Y.max()])
-# plt.show()
+fig = plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 0], X[:, 1], c=Y, cmap='viridis')
+plt.xlabel('Variável Independente: X1')
+plt.ylabel('Variável Independente: X2')
+plt.title('Gráfico de Dispersão\nClassificação Binária')
+cbar = plt.colorbar(label='Variável Dependente: Y')
+cbar.set_ticks([Y.min(), Y.max()])
+plt.show()
 
 
 """
@@ -55,14 +56,14 @@ X = X.T
 4. Faça a definição do η (passo de aprendizagem), conforme
 as discussões realizadas em sala e escrita nos slides.
 """
-lr = 0.001
+lr = 0.001 # TODO: Testar com valores diferentes.
 
 
 """
 5. Para o modelo ADALINE realize a definição do valor de
 precisão.
 """
-pr = 0.001
+pr = 0.001 # TODO: Testar com valores diferentes.
 
 
 """
@@ -79,10 +80,18 @@ epochs = 100
 perceptron = PerceptronSimples(X, Y)
 # O teste também é realizado durante cada época na fase
 # de treinamento.
+# ou, se desejar, perceptron.eval(Xtest, Ytest) ...
+print('Iniciando treinamento com PERCEPTRON SIMPLES')
 perceptron.fit(epochs=epochs, lr=lr)
-# Mas de qualquer forma...
-_, _, Xtest, Ytest = perceptron.split_train_test()
-perceptron.eval(Xtest=Xtest, Ytest=Ytest)
+
+
+adaline = ADALINE(X, Y)
+# O teste também é realizado durante cada época na fase
+# de treinamento.
+# ou, se desejar, adaline.eval(Xtest, Ytest) ...
+print('Iniciando treinamento com ADALINE')
+adaline.fit(epochs=epochs, lr=lr, pr=pr)
+
 
 
 """
@@ -101,12 +110,45 @@ o PS e ADALINE:
     f) Para esses dois casos, construa também um gráfico que 
         mostre o hiperplano de separação dos dois modelos.
 """
+def compute_results(arr: np.ndarray | list):
+    print(f'Média: {np.mean(arr):.4f}')
+    print(f'Desvio Padrão: {np.std(arr):.4f}')
+    print(f'Maior valor: {np.max(arr):.4f}')
+    print(f'Menor valor: {np.min(arr):.4f}\n')
+
 # Acurácia = VP + VN / VP + VN + FP + FN
 # Sensibilidade = VP / VP + FN
 # Especificidade = VN / VN + FP
 
+# Perceptron Simples
+print('Resultados PERCEPTRON SIMPLES')
+print('Acurácia:')
+compute_results(perceptron.accuracies)
+print('Resultados PERCEPTRON SIMPLES')
+print('Sensibilidade:')
+compute_results(perceptron.sensitivities)
+print('Resultados PERCEPTRON SIMPLES')
+print('Especificidade:')
+compute_results(perceptron.specificities)
+
+print('=' * 50, end='\n')
+
+# ADALINE
+print('Resultados ADALINE SIMPLES')
+print('Acurácia:')
+compute_results(adaline.accuracies)
+print('Resultados ADALINE SIMPLES')
+print('Sensibilidade:')
+compute_results(adaline.sensitivities)
+print('Resultados ADALINE SIMPLES')
+print('Especificidade:')
+compute_results(adaline.specificities)
 
 """
 8. Com os resultados obtidos, faça discussões!
 """
 pass
+# TODO: Plotar grafos!
+# TODO: plot() com as acurácias, sensibilidades e especificidades de cada modelo em cada época.
+# TODO: bar() comparando media, desvio padrão, min e max de cada modelo (acc, sens, espc)
+# TODO: Comparativo com LR e PR diferentes.
