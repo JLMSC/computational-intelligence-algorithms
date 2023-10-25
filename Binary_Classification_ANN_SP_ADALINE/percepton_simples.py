@@ -26,8 +26,14 @@ class PerceptronSimples:
         self.p = X.shape[0]
         # Vetor de pesos, inicializado com valores nulos.
         self.W = np.zeros(self.p)
-        # TODO: Armazenar as acurácias, sensibilidade e especificidade.
-        # TODO: Documentar o resto das funções.
+        # Verdadeiro/Falso Positivo/Negativo.
+        self.VP, self.VN, self.FP, self.FN = 0, 0, 0, 0
+        # Acurácias do modelo, de cada época.
+        self.accuracies = []
+        # Sensibilidades do modelo, de cada época.
+        self.sensitivities = []
+        # Especificidades do modelo, de cada época.
+        self.specificities = []
 
 
     def split_train_test(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -52,11 +58,34 @@ class PerceptronSimples:
         return X_train, Y_train, X_test, Y_test
 
 
-    def sign(self, u) -> int:
+    def sign(self, u: float) -> int:
+        """Função de ativação binária.
+
+        Parameters
+        ----------
+        u : float
+            Passo de ativação
+
+        Returns
+        -------
+        int
+            +1 ou -1, conforme a normalização.
+        """
         return 1 if u >= 0 else -1
 
 
     def fit(self, epochs: int, lr: float) -> None:
+        """Realiza o treinamento do modelo.
+
+        Parameters
+        ----------
+        epochs : int
+            Quantidade de épocas a ser realizado o treinamento.
+        lr : float
+            Taxa de aprendizado.
+        """
+        # Reinicia o vetor de pesos com valores nulos.
+        self.W = np.zeros(self.p)
         current_epoch = 0
         err = True
         while err:
@@ -75,11 +104,9 @@ class PerceptronSimples:
                 y_t = self.sign(u_t)
                 d_t = Ytrain[t, 0]
                 self.W = self.W + lr * (d_t - y_t) * x_t
-                loss = max(0, -y_t * (self.W.T @ x_t))
                 if d_t != y_t:
                     err = True
 
-            print(f'Loss: {loss:.2f} - ', end='')
             current_epoch += 1
 
             # Testa a acurácia do modelo na época atual.
@@ -88,12 +115,36 @@ class PerceptronSimples:
 
 
     def eval(self, Xtest: np.ndarray, Ytest: np.ndarray) -> None:
-        corrects = 0
+        """Realiza o teste do modelo.
+
+        Parameters
+        ----------
+        Xtest : np.ndarray
+            Variáveis independentes do conjunto de teste.
+        Ytest : np.ndarray
+            Variáveis dependentes do conjunto de teste.
+        """ 
+        self.VP, self.VN, self.FP, self.FN = 0, 0, 0, 0
         for t in range(Xtest.shape[1]):
-            u_t = self.W.T @ Xtest[:, t]
+            x_t = Xtest[:, t]
+            u_t = self.W.T @ x_t
             y_t = self.sign(u_t)
             if y_t == Ytest[t]:
-                corrects += 1
-        print(f'Accuracy: {(corrects * 100)/len(Ytest):.2f}%')
+                if y_t == 1:
+                    self.VP += 1
+                else:
+                    self.VN += 1
+            else:
+                if y_t == -1:
+                    self.FN += 1
+                else:
+                    self.FP += 1
+        self.accuracies.append(((self.VP + self.VN) / (self.VP + self.VN + self.FP + self.FN)) * 100)
+        self.sensitivities.append((self.VP / (self.VP + self.FN)) * 100)
+        self.specificities.append((self.VN / (self.VN + self.FP)) * 100)
+
+        print(f'Accuracy: {self.accuracies[-1]:.2f}% - '
+              f'Sensitivity: {self.sensitivities[-1]:.2f}% - '
+              f'Specificity: {self.specificities[-1]:.2f}%')
 
 
