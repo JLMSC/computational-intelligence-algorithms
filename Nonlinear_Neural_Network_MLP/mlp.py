@@ -115,19 +115,32 @@ class MLP:
 
 
     def EQM(self, Xtrain: np.ndarray, Ytrain: np.ndarray) -> float:
+        """Calcula o Erro Quadrático Médio (EQM)
+
+        Parameters
+        ----------
+        Xtrain : np.ndarray
+            Os dados do conjunto de treino (X).
+        Ytrain : np.ndarray
+            Os dados do conjunto de treino (Y).
+
+        Returns
+        -------
+        float
+            O EQM calculado.
+        """
         eqm = 0
         for t in range(Xtrain.shape[1]):
-            # TODO: Test if x_t and d_t are correct
             x_t = Xtrain[:, t]
             self.forward(x_t)
             d_t = Ytrain[:, t]
             eqi = 0
-            # TODO: It's possible to use range here, or just enumerate... or 'in'
-            j = 0
-            for n in self.output_layers:
-                eqi += (d_t[j] - self.y[self.hidden_layers - 1][j]) ** 2
-                j += 1
+            for j in range(self.output_layers):
+                # EQI ← EQI + (d[j] − y[QTD_L − 1][j])²
+                eqi += (d_t[j] - self.y[self.hidden_layers][j]) ** 2
+            # EQM ← EQM + EQI
             eqm += eqi
+        # EQM ← EQM/(2 ∗ QtdAmostrasTreino)
         return eqm / (2 * Xtrain.shape[1])
 
 
