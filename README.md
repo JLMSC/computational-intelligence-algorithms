@@ -13,6 +13,7 @@ kMeans - k-Means
 ANN - Neural Network
 SP - Simple Perceptron
 ADALINE - Adaline
+MLP - Multilayer Perceptron
 ```
 
 ## **Requirements**
