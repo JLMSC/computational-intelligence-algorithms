@@ -22,6 +22,8 @@ dataset_inner_folders_images_path = [
     for image_name in os.listdir(os.path.join(dataset_path, folder_name))
     if os.path.join(dataset_path, folder_name, image_name).endswith('.pgm')
 ]
+# Remove duplicatas e aleatoriza a ordem do caminho das imagens.
+dataset_inner_folders_images_path = np.random.permutation(list(set(dataset_inner_folders_images_path)))
 
 # Variável independente (X).
 X = np.empty((IMAGE_DIMENSION[0] * IMAGE_DIMENSION[1], 0))
@@ -80,7 +82,7 @@ X = (X - np.min(X)) / (np.max(X) - np.min(X))
 organização no conjunto de dados para que se tenha a nova
 dimensão, XeR^(p+1)xN
 """
-# X já está no formato.
+# X já é XeR^(p+1)xN.
 
 
 """
@@ -88,8 +90,8 @@ dimensão, XeR^(p+1)xN
 de aprendizagem) e precisão, conforme as discussões
 realizadas em sala e escrita nos slides.
 """
-lr = 0.001
-epochs = 10
+lr = 0.1
+epochs = 100
 
 
 """
@@ -101,11 +103,17 @@ aumente a quantidade de neurônios e/ou camadas escondidas
 até que seja identificado o overfitting. Expresse os
 resultados em duas matrizes de confusão.
 """
-mlp = MLP(hidden_layers=3,
-          hidden_neurons=[2, 4, 8],
+# FIXME: Revisar o modelo, acurácias estão muito ruins.
+# Regra do valor médio: q = (p + m) / 2
+# Regra da raiz quadrada: q = sqrt(p * m)
+# Regra de Kolmogorov: q = 2p + 1
+mlp = MLP(hidden_layers=5,
+          hidden_neurons=[int(np.sqrt(p * c))] * 5,
           output_layers=c,
           X=X,
           Y=Y,)
+mlp.fit(epochs=epochs, lr=lr, min_eqm=0.1, momentum=0.9)
+# TODO: Matriz de confusão (para underfitting e overfitting)
 
 
 """
@@ -115,6 +123,7 @@ como overfitting. Como este processo pode ser custoso, faça
 a definição da topologia com base nas regras discutidas em
 sala de aula.
 """
+# TODO: Topologia que não faz underfitting nem overfitting.
 
 
 """
@@ -129,18 +138,21 @@ de base, considerando as discussões realizadas em sala de aula.
 a construção de matrizes de confusão, box-plots e tabelas que
 expressem a acurácia média, desvio padrão, maior e menor valor.
 """
+# TODO: Plots da etapa 6
 
 
 """
 9. Como o tempo de treinamento pode ser custoso, faça com que se
 tenham poucas rodadas de validação dos modelos.
 """
+# TODO: step no treino, já tem...
 
 
 """
 10. Exiba nos resultados a quantidade média de épocas que fazem
 com que os modelos atinjam a convergência.
 """
+# TODO: Da pra aproveitar o Dropout aqui ...
 
 
 """
@@ -150,3 +162,4 @@ antecipada deve ser operada. Faça discussões, se essa arquitetura
 obteve resultados melhores ou piores com relação às topologias
 anteriores e a rede RBF.
 """
+# TODO: Dropout no modelo.
