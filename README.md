@@ -20,4 +20,5 @@ MLP - Multilayer Perceptron
 ```py
 numpy
 matplotlib
+opencv-python
 ```
