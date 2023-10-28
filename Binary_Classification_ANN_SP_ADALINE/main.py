@@ -144,6 +144,13 @@ print('Resultados ADALINE SIMPLES')
 print('Especificidade:')
 compute_results(adaline.specificities)
 
+# TODO:
+# (d) Construa uma matriz de confusão (gráfico) para a rodada em que se teve a melhor acurácia.
+# (e) Construa uma matriz de confusão (gráfico) para a rodada em que se teve a pior acurácia.
+# (f) Para esses dois casos, construa também um gráfico que mostre o hiperplano de separação dos
+#     dois modelos.
+
+
 """
 8. Com os resultados obtidos, faça discussões!
 """
