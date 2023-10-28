@@ -56,12 +56,12 @@ class MLP:
         self.Y = Y # YeR^cxN
 
 
-    def logistic_sigmoid(self, u: float) -> float:
+    def logistic_sigmoid(self, u) -> float:
         """Função de ativação sigmóide logística."""
         return 1 / (1 + np.exp(-u))
 
 
-    def logistic_sigmoid_derivative(self, u: float) -> float:
+    def logistic_sigmoid_derivative(self, u) -> float:
         """Função de ativação sigmóide logística derivada."""
         sig = self.logistic_sigmoid(u)
         return sig * (1 - sig)
@@ -144,6 +144,7 @@ class MLP:
         return eqm / (2 * Xtrain.shape[1])
 
 
+    # TODO: Adicionar termo do momento (alpha [0, 0.9])
     def fit(self, epochs: int, lr: float, min_eqm: float):
         """Realiza o treinamento do modelo.
 
@@ -156,29 +157,52 @@ class MLP:
         min_eqm : float
             O critério de parada em função do erro (EQM).
         """
-        # TODO: Refatorar
-        # TODO: Change eqm and epoch to current_eqm and current_epoch
-        eqm = 1
-        epoch = 0
-        while eqm > min_eqm and epoch < epochs:
-            print(f'Epoch # {epoch} - lr: {lr} - ', end='')
+        current_lr = lr
+        current_eqm = 1
+        current_epoch = 0
+        while current_eqm > min_eqm and current_epoch < epochs:
+            print(f'Epoch # {current_epoch} - lr: {current_lr} - ', end='')
 
+            # Separa o conjunto de dados em treino e teste.
             Xtrain, Ytrain, Xtest, Ytest = self.split_train_test(train_percentage=0.9)
 
             for t in range(Xtrain.shape[1]):
-                # TODO: Test if x_t and d_t are correct
                 x_t = Xtrain[:, t]
                 self.forward(x_t)
                 d_t = Ytrain[:, t]
-                self.backward(x_t, d_t, lr)
-            eqm = self.EQM(Xtrain=Xtrain, Ytrain=Ytrain)
-            epoch += 1
+                self.backward(x_t, d_t, current_lr)
+            
+            # Calcula o EQM para esta época.
+            current_eqm = self.EQM(Xtrain=Xtrain, Ytrain=Ytrain)
+
+            # Taxa de aprendizagem variável. (Decaimento exponencial)
+            current_lr = lr / (1 + current_epoch)
+
+            # Testa a acurácia do modelo para esta época.
+            self.eval(Xtest=Xtest, Ytest=Ytest)
+            current_epoch += 1
         print('Treinamento concluído.')
+        self.eval(Xtest=Xtest, Ytest=Ytest)
 
 
-    def eval(self) -> None:
-        print("TODO: Not yet implemented.")
-        pass
+    def eval(self, Xtest: np.ndarray, Ytest: np.ndarray) -> None:
+        """Realiza o teste do modelo.
+
+        Parameters
+        ----------
+        Xtest : np.ndarray
+            O conjunto de teste (X).
+        Ytest : np.ndarray
+            O conjunto de teste (Y).
+        """
+        corrects = 0
+        for t in range(Xtest.shape[1]):
+            x_t = Xtest[:, t]
+            self.forward(x_t)
+            predicted_class = np.argmax(self.y[-1])
+            if predicted_class == np.argmax(Ytest[:, t]):
+                corrects += 1
+        print(f'Accuracy: {corrects * 100 / Ytest.shape[1]:.2f}%')
 
 
     def forward(self, x: np.ndarray) -> None:
