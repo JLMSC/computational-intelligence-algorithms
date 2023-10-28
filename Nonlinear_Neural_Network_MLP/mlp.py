@@ -3,6 +3,9 @@ import numpy as np
 from typing import Tuple # Usado para notação de retorno das funções.
 
 
+# ⊗ -> Produto externo
+# ◦ -> Produto de Hadamard
+# · -> Produto entre duas matrizes
 class MLP:
     """Implementação de um Multilayer Perceptron."""
 
@@ -43,8 +46,10 @@ class MLP:
         # [[Camadas Ocultas    ], [Saída]]
         # [[q1, N], ..., [qL, N], [m, 1]]
         self.y = [np.zeros((q, self.N)) for q in self.hidden_neurons] + [np.zeros((self.output_layers, 1))]
-        # Erro. # TODO: Como fica isso aqui?
-        self.delta = np.zeros((self.hidden_layers + 1, self.N))
+        # Erro. (L + 1 camadas com q neurônios ocultos cada).
+        # [[Camadas Ocultas    ], [Saída]]
+        # [[q1, N], ..., [qL, N], [C, N]]
+        self.delta = [np.zeros((q, self.N)) for q in self.hidden_neurons] + [np.zeros((self.output_layers, self.N))]
 
         # Adiciona um vetor linha -1 em X.
         self.X = np.vstack((-np.ones((1, self.N)), X)) # XeR^(p+1)xN
@@ -152,7 +157,7 @@ class MLP:
                 x_t = Xtrain[:, t]
                 self.forward(x_t)
                 d_t = Ytrain[:, t]
-                # self.backward(x_t, d_t)
+                self.backward(x_t, d_t, lr)
             eqm = self.EQM(Xtrain=Xtrain, Ytrain=Ytrain)
             epoch += 1
         print('Treinamento concluído.')
@@ -175,24 +180,56 @@ class MLP:
         """
         for j, w in enumerate(self.W):
             if j == 0:
-                # w · x
+                # i[j] ← W[j] · x_amostra
                 self.i[j] = np.dot(w, x)
+                # y[j] ← g(i[j])
                 self.y[j] = self.logistic_sigmoid(self.i[j])
             else:
-                # Adiciona -1 na primeira posição do vetor.
+                # y_bias ← y[j − 1] com adição de −1 na primeira posição do vetor.
                 y_bias = np.insert(self.y[j - 1], 0, -1, axis=0)
-                # w · y_bias
+                # i[j] ← W[j] · y_bias
                 self.i[j] = np.dot(w, y_bias)
+                # y[j] ← g(i[j])
                 self.y[j] = self.logistic_sigmoid(self.i[j])
 
 
-    # def backward(self, x, d, lr) -> None:
-    #     # TODO: Doc
-    #     j = len(self.W) - 1
-    #     while j >= 0:
-    #         if j + 1 == len(self.W):
-    #             self.delta[j] = np.dot(self.logistic_sigmoid_derivative(self.i[j]), (d - self.y[j]))
-    #             y_bias = np.insert(self.y[j - 1], 0, -1, axis=1)
-    #             self.W[j] += lr * np.kron(self.delta[j], y_bias)
-    #         elif j == 0:
+    def backward(self, x: np.ndarray, d: np.ndarray, lr: float) -> None:
+        """Backward da rede MLP.
+        Passagem de informações da camada de saída
+        às camadas ocultas, retropropagação.
 
+        Parameters
+        ----------
+        x : np.ndarray
+            Uma amostra xeR^(p+1)x1
+        d : np.ndarray
+            O rótulo da amostra deR^cx1
+        lr : float
+            Taxa de aprendizado.
+        """
+        j = len(self.W) - 1
+        while j >= 0:
+            if j + 1 == len(self.W):
+                # δ[j] ← g′ (i[j]) ◦ (d − y[j])
+                self.delta[j] = self.logistic_sigmoid_derivative(self.i[j]) * (d - self.y[j])
+                # y_bias ← y[j − 1] com adição de −1 na primeira posição do vetor.
+                y_bias = np.insert(self.y[j - 1], 0, -1, axis=0)
+                # W[j] ← W[j] + η(δ[j] ⊗ y_bias)
+                self.W[j] += lr * np.outer(self.delta[j], y_bias)
+            elif j == 0:
+                # Wb[j + 1] ← W[j + 1] transposto sem o víes/bias (-1).
+                wb = self.W[j + 1][:, :-1].T
+                # δ[j] ← g′(i[j]) ◦ (Wb[j + 1] · δ[j + 1])
+                self.delta[j] = self.logistic_sigmoid_derivative(self.i[j]) * np.dot(wb, self.delta[j + 1])
+                # W[j] ← W[j] + η(δ[j] ⊗ y_bias)
+                self.W[j] += lr * np.outer(self.delta[j], x)
+            else:
+                # Wb[j + 1] ← W[j + 1] transposto sem o víes/bias (-1).
+                wb = self.W[j + 1][:, :-1].T
+                # δ[j] ← g′(i[j]) ◦ (Wb[j + 1] · δ[j + 1])
+                self.delta[j] = self.logistic_sigmoid_derivative(self.i[j]) * np.dot(wb, self.delta[j + 1])
+                # y_bias ← y[j − 1] com adição de −1 na primeira posição do vetor.
+                y_bias = np.insert(self.y[j - 1], 0, -1, axis=0)
+                # W[j] ← W[j] + η(δ[j] ⊗ y_bias)
+                self.W[j] += lr * np.outer(self.delta[j], y_bias)
+            j -= 1
