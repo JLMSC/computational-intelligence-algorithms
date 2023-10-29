@@ -72,9 +72,10 @@ from mlp import MLP
 de dados, faça a normalização dos dados utilizando o método
 min-max.
 """
-# O uso do np.min e np.max é para garantir [0, 1] inclusivo.
-# (arr - min) / (max - min)
-X = (X - np.min(X)) / (np.max(X) - np.min(X))
+# Caso seja usado a função sigmoid.
+# X = (X - np.min(X)) / (np.max(X) - np.min(X))
+# Caso seja usado a tangente hiperbólica.
+X = 2 * ((X - np.min(X)) / (np.max(X) - np.min(X))) - 1
 
 
 """
@@ -82,7 +83,7 @@ X = (X - np.min(X)) / (np.max(X) - np.min(X))
 organização no conjunto de dados para que se tenha a nova
 dimensão, XeR^(p+1)xN
 """
-# X já é XeR^(p+1)xN.
+# X é alterado dentro da classe MLP.
 
 
 """
@@ -90,8 +91,14 @@ dimensão, XeR^(p+1)xN
 de aprendizagem) e precisão, conforme as discussões
 realizadas em sala e escrita nos slides.
 """
+# TODO: Testar com esse lr ai
+# Época 41 -> 42
+# lr >= 0.002 melhorou em 40% a acurácia do modelo
+# X = 2 * ((X - np.min(X)) / (np.max(X) - np.min(X))) - 1
+# Função de Ativação: Tangente Hiperbólica
+# Variância da Taxa de Aprendizado: Decaimento Exponencial
 lr = 0.1
-epochs = 100
+epochs = 100 # 250 é o melhor?
 
 
 """
@@ -107,12 +114,12 @@ resultados em duas matrizes de confusão.
 # Regra do valor médio: q = (p + m) / 2
 # Regra da raiz quadrada: q = sqrt(p * m)
 # Regra de Kolmogorov: q = 2p + 1
-mlp = MLP(hidden_layers=5,
-          hidden_neurons=[int(np.sqrt(p * c))] * 5,
+mlp = MLP(hidden_layers=3,
+          hidden_neurons=[2 * p + 1, int(np.sqrt(p * c)), (p + c) // 2],
           output_layers=c,
           X=X,
           Y=Y,)
-mlp.fit(epochs=epochs, lr=lr, min_eqm=0.1, momentum=0.9)
+mlp.fit(epochs=epochs, lr=lr, criterion=0.1, momentum=0.9)
 # TODO: Matriz de confusão (para underfitting e overfitting)
 
 
@@ -152,7 +159,17 @@ tenham poucas rodadas de validação dos modelos.
 10. Exiba nos resultados a quantidade média de épocas que fazem
 com que os modelos atinjam a convergência.
 """
-# TODO: Da pra aproveitar o Dropout aqui ...
+# Curva de Aprendizado.
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, epochs + 1), mlp.eqms_per_epoch, 'g', label='Acurácia por Época')
+plt.plot(range(1, epochs + 1), mlp.accuracies_per_epoch, 'b', label='EQM por Época')
+plt.title('Curva de Aprendizado')
+plt.xlabel('Épocas')
+plt.ylabel('Acurácia/EQMs')
+plt.legend()
+plt.grid()
+plt.show()
+# TODO: Da pra aproveitar o Dropout aqui (etapa 11)...
 
 
 """
