@@ -33,14 +33,14 @@ gráfico de espalhamento. Nessa etapa, faça uma discussão
 inicial sobre quais resultados poderão ser obtidos ao
 utilizar o perceptron simples e o ADALINE.
 """
-fig = plt.figure(figsize=(10, 6))
-plt.scatter(X[:, 0], X[:, 1], c=Y, cmap='viridis')
-plt.xlabel('Variável Independente: X1')
-plt.ylabel('Variável Independente: X2')
-plt.title('Gráfico de Dispersão\nClassificação Binária')
-cbar = plt.colorbar(label='Variável Dependente: Y')
-cbar.set_ticks([Y.min(), Y.max()])
-plt.show()
+# fig = plt.figure(figsize=(10, 6))
+# plt.scatter(X[:, 0], X[:, 1], c=Y, cmap='viridis')
+# plt.xlabel('Variável Independente: X1')
+# plt.ylabel('Variável Independente: X2')
+# plt.title('Gráfico de Dispersão\nClassificação Binária')
+# cbar = plt.colorbar(label='Variável Dependente: Y')
+# cbar.set_ticks([Y.min(), Y.max()])
+# plt.show()
 
 
 """
@@ -56,14 +56,14 @@ X = X.T
 4. Faça a definição do η (passo de aprendizagem), conforme
 as discussões realizadas em sala e escrita nos slides.
 """
-lr = 0.001 # TODO: Testar com valores diferentes.
+lr = 0.001
 
 
 """
 5. Para o modelo ADALINE realize a definição do valor de
 precisão.
 """
-pr = 0.001 # TODO: Testar com valores diferentes.
+pr = 0.001
 
 
 """
@@ -144,18 +144,148 @@ print('Resultados ADALINE SIMPLES')
 print('Especificidade:')
 compute_results(adaline.specificities)
 
-# TODO:
-# (d) Construa uma matriz de confusão (gráfico) para a rodada em que se teve a melhor acurácia.
-# (e) Construa uma matriz de confusão (gráfico) para a rodada em que se teve a pior acurácia.
-# (f) Para esses dois casos, construa também um gráfico que mostre o hiperplano de separação dos
-#     dois modelos.
+
+
+# Gráfico da Acurácia, Sensibilidade e Especificade por Época.
+# ? Trocar adaline por perceptron e vice-versa, depende de qual vai usar.
+# bar_width = 0.2
+# x = range(epochs)
+# fig, ax = plt.subplots()
+# ax.plot([i - bar_width for i in x], adaline.accuracies, label='Acurácias', color='green')
+# ax.plot(x, adaline.sensitivities, label='Sensibilidades', color='blue')
+# ax.plot([i + bar_width for i in x], adaline.specificities, label='Especificidades', color='orange')
+
+# # ax.set_xticks(x)
+# # ax.set_xticklabels(x, rotation=45)
+
+# ax.legend(loc='lower left')
+
+# ax.set_xlabel('Épocas')
+# ax.set_ylabel('Métricas')
+# ax.set_title('Acurácia, Sensibilidade e Especificidade por Época do ADALINE')
+
+# plt.grid()
+# plt.show()
+
+
+
+# Gráfico de Barra Média Acurácia, Sensibilidade e Especificidade.
+# def get_metrics(arr):
+#     return np.mean(arr), np.std(arr), np.max(arr), np.min(arr)
+
+# labels = ['Acurácia', 'Sensibilidade', 'Especificidade']
+# vals = [
+#     # ? Trocar adaline por perceptron e vice-versa, depende de qual vai usar.
+#     [*get_metrics(adaline.accuracies)],
+#     [*get_metrics(adaline.sensitivities)],
+#     [*get_metrics(adaline.specificities)],
+# ]
+
+# metrics = ['Média', 'Desvio Padrão', 'Máximo', 'Mínimo']
+# num_metrics = len(metrics)
+# num_categories = len(vals)
+# indexes = np.arange(num_metrics)
+# bar_width = 0.2
+
+# category_colors = ['blue', 'green', 'red', 'orange']
+
+# fig, ax = plt.subplots(figsize=(12, 6))
+
+# for i, label in enumerate(labels):
+#     for j in range(num_categories):
+#         val = vals[j]
+#         ax.bar(indexes + j * bar_width, val, bar_width, color=category_colors[j])
+
+# ax.set_xticks(indexes + bar_width * (num_categories - 1) / 2)
+# ax.set_xticklabels(metrics)
+
+# legend_labels = [f'{label}' for label in labels]
+# legend = ax.legend(legend_labels, loc='lower left')
+
+# for i in range(len(labels)):
+#     for j in range(num_metrics):
+#         val = vals[i][j]
+#         ax.text(indexes[j] + i * bar_width, val, f'{val:.2f}%', ha='center', va='bottom')
+
+# # ? Trocar adaline por perceptron e vice-versa, depende de qual vai usar.
+# ax.set_title(f'Acurácia, Sensibilidade e Especificidade do ADALINE')
+# ax.set_xlabel('Métricas')
+# ax.set_ylabel('Valores')
+
+# plt.tight_layout()
+# plt.show()
+
+
+
+# Matriz de confusão
+# ? Trocar adaline por perceptron e vice-versa, depende de qual vai usar.
+# ? Trocar as linhas abaixo conforme a necessidade
+# acc_i = np.argmax(adaline.accuracies) # Melhor acurácia
+# acc_i = np.argmin(adaline.accuracies) # Pior acurácia
+# confustion_matrix = np.array([
+#     [adaline.VPS[acc_i], adaline.FPS[acc_i]],
+#     [adaline.FNS[acc_i], adaline.VNS[acc_i]]
+# ])
+# classes = ['Verdadeiro', 'Falso']
+# plt.figure(figsize=(10, 6))
+
+# cmap = plt.get_cmap('Oranges')
+
+# normalized_matrix = confustion_matrix.astype('float') / confustion_matrix.sum(axis=1)[:, np.newaxis]
+
+# plt.imshow(normalized_matrix, interpolation='nearest', cmap=cmap)
+# plt.title('Matriz de Confusão (Rodada Pior Acurácia)\nADALINE')
+# plt.colorbar()
+
+# tick_marks = np.arange(len(classes))
+# plt.xticks(tick_marks, classes, rotation=45)
+# plt.yticks(tick_marks, classes)
+
+# thresh = normalized_matrix.max() / 2.0
+# for i in range(len(classes)):
+#     for j in range(len(classes)):
+#         plt.text(j, i, f'{normalized_matrix[i, j]*100:.2f}%', ha='center', va='center', color='white' if normalized_matrix[i, j] > thresh else 'black')
+
+# plt.tight_layout()
+# plt.ylabel('Valor Real')
+# plt.xlabel('Valor Predito')
+
+# plt.show()
+
+
+
+# Hiperplano de separação.
+w1 = adaline.W[0]
+w2 = adaline.W[1]
+
+x = np.linspace(-15, 10, 10000)
+y = (-w1 * x) / w2
+
+plt.figure(figsize=(8, 6))
+plt.plot(x, y, '-', color='orange')
+
+plt.xlim(np.min(X) - 5, np.max(X) + 5)
+plt.ylim(np.min(X) - 5, np.max(X) + 5)
+
+plt.title('Hiperplano de Separação do ADALINE')
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.grid(color = 'gray', linestyle = '--', linewidth = 0.5)
+
+class_1_indexes = (Y == 1).flatten()
+class_2_indexes = (Y == -1).flatten()
+X_1 = X[:, class_1_indexes]
+X_2 = X[:, class_2_indexes]
+
+plt.scatter(X_1[0, :], X_1[1, :], c='red', marker='o', label='Classe 1')
+plt.scatter(X_2[0, :], X_2[1, :], c='blue', marker='x', label='Classe 2')
+
+plt.legend(loc='upper left')
+
+plt.show()
+
 
 
 """
 8. Com os resultados obtidos, faça discussões!
 """
-pass
-# TODO: Plotar grafos!
-# TODO: plot() com as acurácias, sensibilidades e especificidades de cada modelo em cada época.
-# TODO: bar() comparando media, desvio padrão, min e max de cada modelo (acc, sens, espc)
-# TODO: Comparativo com LR e PR diferentes.

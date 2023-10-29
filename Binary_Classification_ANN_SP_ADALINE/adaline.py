@@ -34,6 +34,9 @@ class ADALINE:
         self.sensitivities = []
         # Especificidades do modelo, de cada época.
         self.specificities = []
+        # VPS, VNS, FPS, FNS
+        self.VPS, self.VNS = [], []
+        self.FPS, self.FNS = [], []
 
 
     def split_train_test(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -131,7 +134,8 @@ class ADALINE:
 
             # Testa a acurácia do modelo na época atual.
             self.eval(Xtest=Xtest, Ytest=Ytest)
-        print('Treinamento completo.')
+        print('Treinamento completo. ', end='')
+        self.eval(Xtest=Xtest, Ytest=Ytest)
 
 
     def eval(self, Xtest: np.ndarray, Ytest: np.ndarray) -> None:
@@ -162,6 +166,11 @@ class ADALINE:
         self.accuracies.append(((self.VP + self.VN) / (self.VP + self.VN + self.FP + self.FN)) * 100)
         self.sensitivities.append((self.VP / (self.VP + self.FN)) * 100)
         self.specificities.append((self.VN / (self.VN + self.FP)) * 100)
+
+        self.VPS.append(self.VP)
+        self.VNS.append(self.VN)
+        self.FPS.append(self.FP)
+        self.FNS.append(self.FN)
 
         print(f'Accuracy: {self.accuracies[-1]:.2f}% - '
               f'Sensitivity: {self.sensitivities[-1]:.2f}% - '
