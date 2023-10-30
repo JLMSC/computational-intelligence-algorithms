@@ -27,13 +27,21 @@ class MLP:
         """
         # Acurácia no conjunto de teste do modelo no treinamento por época.
         self.accuracies_per_epoch = []
-        # EQMs do modelo no treinamento por época.
-        self.eqms_per_epoch = []
+        # Erro do treinamento.
+        self.train_errors = []
+        # Erro do teste/validação.
+        self.validation_errors = []
 
         # Qntd. de amostras (N) e Qntd. de variáveis (p)
         self.N, self.p = X.shape[::-1]
         # Qntd. de classes (c)
         self.c = Y.shape[0]
+
+        # Matriz de confusão.
+        self.confusion_matrix = np.zeros((self.c, self.c))
+
+        # Qntd. de épocas rodadas no treinamento.
+        self.current_epoch = 0
 
         # Estrutura do MLP.
         self.input_layers = self.p
@@ -70,7 +78,7 @@ class MLP:
     def activate_derivative(self, u) -> float:
         """Função de ativação derivada."""
         activate = self.activate(u)
-        return 0.8 * (1 - (activate ** 2)) # Tangente Hiperbólica Derivada.
+        return 0.5 * (1 - (activate ** 2)) # Tangente Hiperbólica Derivada.
         # return activate * (1 - activate) # Sigmóide Logística Derivada
 
 
@@ -153,7 +161,7 @@ class MLP:
         return (eqm / (2 * Xtrain.shape[1]))[0]
 
 
-    def fit(self, epochs: int, lr: float, criterion: float, momentum: float):
+    def fit(self, epochs: int, lr: float, criterion: float, patience: int):
         """Realiza o treinamento do modelo.
 
         Parameters
@@ -164,19 +172,22 @@ class MLP:
             A taxa de aprendizado.
         criterion : float
             O critério de parada em função do erro (EQM).
-        momentum : float
-            O termo do momento.
+        patience : int
+            O número de épocas consecutivas sem melhora na validação
+            para parar o treinamento.
         """
         current_lr = lr
-        current_eqm = 1
-        current_epoch = 0
-        momentums = [np.zeros_like(w) for w in self.W]
+        current_eqm = self.EQM(self.X, self.Y)
+        no_model_improvement_count = 0
+        best_eqm = float('inf')
 
-        while current_eqm > criterion and current_epoch < epochs:
-            print(f'Epoch # {current_epoch} - lr: {current_lr} - EQM: {current_eqm} - ', end='')
+        self.current_epoch = 0
+
+        while current_eqm > criterion and self.current_epoch < epochs and no_model_improvement_count < patience:
+            print(f'Epoch # {self.current_epoch} - lr: {current_lr} - EQM: {current_eqm} - ', end='')
 
             # Separa o conjunto de dados em treino e teste.
-            Xtrain, Ytrain, Xtest, Ytest = self.split_train_test()
+            Xtrain, Ytrain, Xtest, Ytest = self.split_train_test(train_percentage=0.9)
 
             for t in range(Xtrain.shape[1]):
                 x_t = Xtrain[:, t].reshape((Xtrain.shape[0], 1))
@@ -184,18 +195,20 @@ class MLP:
                 d_t = Ytrain[:, t].reshape((Ytrain.shape[0], 1))
                 self.backward(x_t, d_t, current_lr)
 
-            #     for i in range(len(self.W)):
-            #         momentums[i] = momentum * momentums[i] + current_lr * self.W[i]
-
-            # for i in range(len(self.W)):
-            #     self.W[i] += momentums[i]
-
             # Calcula o EQM para esta época.
             current_eqm = self.EQM(Xtrain=Xtrain, Ytrain=Ytrain)
-            self.eqms_per_epoch.append(current_eqm)
+            self.train_errors.append(current_eqm)
+            validation_eqm = self.EQM(Xtrain=Xtest, Ytrain=Ytest)
+            self.validation_errors.append(validation_eqm)
+
+            if validation_eqm < best_eqm:
+                best_eqm = validation_eqm
+                no_model_improvement_count = 0
+            else:
+                no_model_improvement_count += 1
 
             # Taxa de aprendizagem variável.
-            current_lr = lr / (1 + current_epoch) # Decaimento Exponencial
+            current_lr = lr / (1 + self.current_epoch) # Decaimento Exponencial
             # current_lr = lr * (1 - (1 / epochs)) # Decaimento Linear
 
             # Testa a acurácia do modelo para esta época.
@@ -204,9 +217,16 @@ class MLP:
 
             print(f'Accuracy: {acc:.4f}%')
 
-            current_epoch += 1
+            self.current_epoch += 1
+        
+        if no_model_improvement_count > patience:
+            print('A parada antecipada foi acionada!')
+
+        # Valida o modelo com novos dados de teste (20%)
+        Xtrain, Ytrain, Xtest, Ytest = self.split_train_test(train_percentage=0.8)
         print('Treinamento concluído! ', end='')
         print(f'Accuracy: {self.eval(Xtest=Xtest, Ytest=Ytest):.4f}%')
+    
 
 
     def eval(self, Xtest: np.ndarray, Ytest: np.ndarray) -> float:
@@ -229,8 +249,10 @@ class MLP:
             x_t = Xtest[:, t].reshape((Xtest.shape[0], 1))
             self.forward(x_t)
             predicted_class = np.argmax(self.y[self.hidden_layers])
-            if predicted_class == np.argmax(Ytest[:, t]):
+            true_class = np.argmax(Ytest[:, t])
+            if predicted_class == true_class:
                 corrects += 1
+            self.confusion_matrix[true_class, predicted_class] += 1
         return (corrects * 100) / Ytest.shape[1]
 
 
