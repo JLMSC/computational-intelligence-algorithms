@@ -74,8 +74,7 @@ class HillClimbing:
         # 'f_x2_bounds' using the 'f' function.
         f_x1 = np.linspace(f_x1_bounds[0], f_x1_bounds[1], f_data_amount)
         f_x2 = np.linspace(f_x2_bounds[0], f_x2_bounds[1], f_data_amount)
-        f_x1 = np.meshgrid(f_x1, f_x1)
-        f_x2 = np.meshgrid(f_x2, f_x2)
+        f_x1, f_x2 = np.meshgrid(f_x1, f_x2)
         y = f(f_x1, f_x2)
 
         # Uses the min or max limit of f_x1 and f_x2 based on 'optimization_method'
@@ -114,7 +113,7 @@ class HillClimbing:
                 # Assuming 'optimization_method' is min or max,
                 # this should not (if F < or > f_candidate) equal to
                 # f_candidate.
-                if optimization_method(F, f_candidate) != f_candidate:
+                if optimization_method([F, f_candidate]) != f_candidate:
                     x1_candidate = new_x1_candidate
                     x2_candidate = new_x2_candidate
                     f_candidate = F
