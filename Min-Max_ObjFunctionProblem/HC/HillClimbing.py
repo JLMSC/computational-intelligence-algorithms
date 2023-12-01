@@ -1,59 +1,149 @@
+from typing import Any, Callable, Tuple
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-# TODO: Add docs for every function.
 class HillClimbing:
-    """Hill Climbing"""
+    """Hill Climbing."""
 
+    # TODO: Repeat this R times and doc the most frequent value found.
     @staticmethod
-    def fit(obj_function, epsilon: float = 0.1, max_iter: int = 100):
-        """TODO: Doc"""
+    def search(
+        f: Callable[..., Any],
+        f_x1_bounds: Tuple[float, float],
+        f_x2_bounds: Tuple[float, float],
+        f_data_amount: int,
+        optimization_method: Callable[..., Any],
+        dropout_max_iterations: int,
+        max_iterations: int,
+        max_candidates: int,
+        epsilon: float,
+    ) -> None:
+        """
+        Applies the Hill Climbing algorithm in a specific 'f' problem.
 
-        def candidate(x_1, x_2):
-            x_1_candidate = x_1 + np.random.uniform(-epsilon, epsilon)
-            x_2_candidate = x_2 + np.random.uniform(-epsilon, epsilon)
-            return x_1_candidate, x_2_candidate
+        Tries to minimize/maximize ('optimization_method') the given
+        'f' function.
 
-        # todo: Make a func to visualize every iteration?
-        # todo: Remove later, just a visualization.
-        import matplotlib.pyplot as plt
+        Parameters
+        ----------
+        f : Callable[..., Any],
+            The function, problem, that will be minimized or maximized.
+        f_x1_bounds : int
+            Both lower and upper bounds for the random generated x1 values in 'f' function,
+        f_x2_bounds : int
+            Both lower and upper bounds for the random generated x2 values in 'f' function,
+        f_data_amount : int
+            The amount of data to be generated using 'f' function.
+        optimization_method : Callable[[Any], Any]
+            The optimization method that will be used, it can be np.min or np.max.
+        dropout_max_iterations : int
+            The stop condition when there's no improvements in 'dropout' iterations.
+        max_iterations : int
+            The maximum amount of iterations.
+        max_candidates : int
+            The maximum amount of new generated random candidates per iteration.
+        epsilon : float
+            epsilon, should be a small value between (0, 1).
+        """
 
-        x_1, x_2, y = obj_function()
+        def generate_new_candidates(x1, x2) -> tuple:
+            """
+            Generates new candidates.
 
+            Generates new candidates based on previous iteration/generation
+            best 'x1' and 'x2' candidates, also uses 'epsilon'.
+
+            Parameters
+            ----------
+            x1 : Any
+                The previous iteration/generation best candidate.
+            x2 : Any
+                The previous iteration/generation best candidate.
+
+            Returns
+            -------
+            tuple
+                New candidates based on 'x1' and 'x2' candidates.
+            """
+            x1 = np.random.uniform(low=x1 - epsilon, high=x1 + epsilon)
+            x2 = np.random.uniform(low=x2 - epsilon, high=x2 + epsilon)
+            return x1, x2
+
+        # Generate random 'f_data_amount' data between 'f_x1_bounds' and
+        # 'f_x2_bounds' using the 'f' function.
+        f_x1 = np.linspace(f_x1_bounds[0], f_x1_bounds[1], f_data_amount)
+        f_x2 = np.linspace(f_x2_bounds[0], f_x2_bounds[1], f_data_amount)
+        f_x1 = np.meshgrid(f_x1, f_x1)
+        f_x2 = np.meshgrid(f_x2, f_x2)
+        y = f(f_x1, f_x2)
+
+        # Uses the min or max limit of f_x1 and f_x2 based on 'optimization_method'
+        # as the starting point.
+        x1_candidate = optimization_method(f_x1)
+        x2_candidate = optimization_method(f_x2)
+        f_candidate = f(x1_candidate, x2_candidate)
+
+        # Setup 3d projection to visualize the current problem.
         fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
-        ax.plot_surface(x_1, x_2, y, rstride=10, cstride=10, alpha=0.6, cmap='jet')
+        ax = fig.add_subplot(projection="3d")
+        ax.plot_surface(f_x1, f_x2, y, rstride=10, cstride=10, alpha=0.6, cmap="jet")
 
-        # warn: epsilon must be between (0, 1)
-        # todo: find a good value for epsilon to get the optimal solution.
+        # Search, try to optimize the 'f' problem.
+        for _ in range(max_iterations):
+            # The amount of iterations/generation without optimizations.
+            dropout_no_optimizations_count = 0
 
-        # fixme: 0, 0 or min/max limit
-        x_1_candidate, x_2_candidate = 0, 0
-        f_best = obj_function(x_1_candidate=x_1_candidate, x_2_candidate=x_2_candidate)
-        max_candidates = 10
-        for _ in range(max_iter):
+            # Indicates if there was an optimization in this iteration/generation.
+            optimized = False
+
+            # Dropout if no optimization in 'dropout_max_iterations'.
+            if dropout_no_optimizations_count >= dropout_max_iterations:
+                break
+
+            # Generate 'max_candidates' per iteration,
+            # procreating the best candidates.
             for _ in range(max_candidates):
-                y = candidate(x_1_candidate, x_2_candidate)
-                F = obj_function(x_1_candidate=y[0], x_2_candidate=y[1])
-                if F > f_best:
-                    x_1_candidate, x_2_candidate = y
-                    f_best = F
+                optimized = False
 
-                    # todo: the scatter should be added here with gray color or something
-                    # (to visualize each iteration)
+                new_x1_candidate, new_x2_candidate = generate_new_candidates(
+                    x1_candidate, x2_candidate
+                )
+                F = f(new_x1_candidate, new_x2_candidate)
+
+                # Assuming 'optimization_method' is min or max,
+                # this should not (if F < or > f_candidate) equal to
+                # f_candidate.
+                if optimization_method(F, f_candidate) != f_candidate:
+                    x1_candidate = new_x1_candidate
+                    x2_candidate = new_x2_candidate
+                    f_candidate = F
+
+                    # Plot the current iteration/generation in the 3d projection.
+                    ax.scatter(
+                        x1_candidate,
+                        x2_candidate,
+                        f_candidate,
+                        marker="x",
+                        s=90,
+                        linewidth=3,
+                        color="red",
+                    )
+
+                    optimized = True
                     break
- 
-        # todo: Remove later, just a visualization.
-        ax.scatter(x_1_candidate, x_2_candidate, f_best[-1], marker='x', s=90, linewidth=3, color='red')
 
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-        ax.set_title('f(x1, x2)')
+            # If there's no optimizations in the current iteration/generation
+            # sum up the 'dropout_no_optimizations_count'.
+            if not optimized:
+                dropout_no_optimizations_count += 1
+
+        # Finish 3d projection.
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_title("f(x1, x2)")
 
         plt.tight_layout()
-        plt.show()       
-
-        # WARN: no returns are needed.
-        return f_best
+        plt.show()
 
