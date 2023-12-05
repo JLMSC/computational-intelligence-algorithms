@@ -7,17 +7,16 @@ from SimulatedAnnealing.Main import SimulatedAnnealing
 
 
 if __name__ == '__main__':
-    # FIXME: problem 5; problem 7 (HC)
     for problem in ProblemContainer.values():
-        # HillClimbing(
-        #     curr_problem.f,
-        #     0.2,
-        #     curr_problem.x1_bounds,
-        #     curr_problem.x2_bounds,
-        #     1000,
-        #     1000,
-        #     dropout=1000,
-        # )
+        HillClimbing(
+            problem.f,
+            0.2,
+            problem.x1_bounds,
+            problem.x2_bounds,
+            1000,
+            1000,
+            dropout=1000,
+        )
 
         # LocalRandomSearch(
         #     f=problem.f,
@@ -36,12 +35,12 @@ if __name__ == '__main__':
         #     dropout=1000,
         # )
 
-        SimulatedAnnealing(
-            f=problem.f,
-            sigma=0.2,
-            temperatue=1.0,
-            x1_bounds=problem.x1_bounds,
-            x2_bounds=problem.x2_bounds,
-            max_it=1000,
-            dropout=1000,
-        )
+        # SimulatedAnnealing(
+        #     f=problem.f,
+        #     sigma=0.2,
+        #     temperatue=1.0,
+        #     x1_bounds=problem.x1_bounds,
+        #     x2_bounds=problem.x2_bounds,
+        #     max_it=1000,
+        #     dropout=1000,
+        # )

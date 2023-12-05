@@ -52,7 +52,6 @@ def wheel_selection(population: list[Board]) -> Board:
     return population[i]
 
 
-# TODO: Try crossover between two points.
 def crossover(parent1: Board, parent2: Board, nd: int = 8) -> list[Board]:
     # Recombination probability
     pc = np.random.uniform(low=0.85, high=0.95)
@@ -78,7 +77,6 @@ def crossover(parent1: Board, parent2: Board, nd: int = 8) -> list[Board]:
     return [parent1, parent2]
 
 
-# TODO: Try unordered mutation and gaussian mutation.
 def mutate(individual: Board, nd: int = 8, pm: float = 0.1) -> None:
     for j in range(nd):
         if np.random.rand() < pm:
@@ -86,7 +84,6 @@ def mutate(individual: Board, nd: int = 8, pm: float = 0.1) -> None:
 
 
 def main() -> None:
-    # TODO: Test with random values, get optimal solution.
     population_size = 100
     max_generations = 10000
     population = generate_population(population_size=population_size)

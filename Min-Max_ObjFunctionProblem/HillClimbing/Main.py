@@ -74,6 +74,7 @@ def HillClimbing(f, epsilon: float, x1_bounds: Tuple[float, float], x2_bounds: T
 
             x1_cand, x2_cand = candidate(x1_best, x2_best)
             F = f(x1_cand, x2_cand)
+            # FIXME: > to max, < to min
             if F > f_best:
                 # Procreate based on the best candidates from this iteration.
                 x1_best, x2_best = x1_cand, x2_cand
