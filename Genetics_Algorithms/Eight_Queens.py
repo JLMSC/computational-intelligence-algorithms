@@ -8,15 +8,16 @@ class Board:
 
 
 def fitness_function(chromossomes: list) -> int:
-    # Start by counting attacks in rows.
-    attacks = abs(len(chromossomes) - len(np.unique(ar=chromossomes)))
-    # Count and sum up diagonal attacks.
+    attacks = 0
     for i in range(len(chromossomes)):
         for j in range(len(chromossomes)):
             if i != j:
-                if abs(i - j) == abs(chromossomes[i] - chromossomes[j]):
+                if chromossomes[i] == chromossomes[j]:
                     attacks += 1
-    # 28 defines the numbers of arrangemens of non attacking pairs.
+                elif abs(i - j) == abs(chromossomes[i] - chromossomes[j]):
+                    attacks += 1
+                continue
+    # 28 defines the numbers of arrangements of non-attacking pairs.
     return 28 - attacks
 
 
@@ -85,7 +86,7 @@ def mutate(individual: Board, nd: int = 8, pm: float = 0.1) -> None:
 
 def main() -> None:
     population_size = 100
-    max_generations = 10000
+    max_generations = 1000
     population = generate_population(population_size=population_size)
 
     for generation in range(max_generations):
@@ -109,7 +110,7 @@ def main() -> None:
         
         # Mean fitness in current population.
         avg_fitness = np.mean(a=[individual.fitness for individual in population])
-        print(f'Generation {generation + 1}: Mean Fitness = {avg_fitness}')
+        print(f'Generation {generation + 1}: Average Fitness = {avg_fitness}')
     
     # Best individual.
     best_individual = max(population, key=lambda individual: individual.fitness)
