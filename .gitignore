@@ -4,3 +4,4 @@ SI/
 __pycache__/
 **.zip
 **.pdf
+.venv/
