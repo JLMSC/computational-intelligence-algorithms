@@ -1,0 +1,17 @@
+# Computational Intelligence Algorithms
+
+This work contains a collection of computational implementations of classical algorithms in Optimization, Machine Learning, and Linear Algebra. The project is structured as a set of independent modules, each focusing on a specific problem or class of methods.
+
+## Introduction
+
+The objective of this work is to explore and implement fundamental algorithms from different domains, emphasizing:
+- Mathematical modeling
+- Algorithmic problem solving
+- From-scratch implementations
+- Visualization of results (when applicable)
+
+Each module is self-contained and demonstrates a specific technique or family of algorithms.
+
+##  Requirements
+
+See `requirements.txt` for the project dependencies.
