@@ -1,12 +1,8 @@
-Single-Layer Neural Models: Perceptron and ADALINE
-==================================================
+# Single-Layer Neural Models: Perceptron and ADALINE
 
-This work presents computational implementations of two fundamental supervised learning models: the
-Simple Perceptron and the Adaptive Linear Neuron (ADALINE). Both models are designed for binary
-classification tasks and are trained using iterative learning rules based on input-output pairs.
+This work presents computational implementations of two fundamental supervised learning models: the Simple Perceptron and the Adaptive Linear Neuron (ADALINE). Both models are designed for binary classification tasks and are trained using iterative learning rules based on input-output pairs.
 
-Introduction
-------------
+## Introduction
 
 This project implements classical linear models, with the following objectives:
 - Represent datasets as input-output vector pairs
@@ -15,107 +11,116 @@ This project implements classical linear models, with the following objectives:
 - Evaluate classification performance on unseen data
 - Compare learning dynamics between Perceptron and ADALINE
 
-Problem Representation
-----------------------
+## Problem Representation
 
 A supervised learning problem is defined as:
-    X ∈ ℝ^(p × N) : input matrix  
-    Y ∈ ℝ^(N × 1) : target output vector  
+
+$$ X \in \mathbb{R}^{p \times N} : \text{input matrix} $$
+$$ Y \in \mathbb{R}^{N \times 1} : \text{target output vector} $$
 
 Where:
-- p: number of features (including bias, if applicable)
-- N: number of samples
-Each column of X represents as input sample, and each corresponding element in Y represents its
-label.
+- $p$: number of features (including bias, if applicable)
+- $N$: number of samples
 
-Data Handling
--------------
+Each column of $X$ represents an input sample, and each corresponding element in $Y$ represents its label.
+
+## Data Handling
 
 The dataset is split into training and testing subsets:
-- Training set: 80% of samples
-- Testing set: 20% of samples
+- **Training set:** 80% of samples
+- **Testing set:** 20% of samples
+
 Splitting is performed randomly at each epoch to ensure variability.
+Implemented in: `split_train_test()`
 
-Implemented in:
-- `split_train_test()`
+## Model Definitions
 
-Model Definitions
------------------
+### A. Simple Perceptron
+The Perceptron is a linear classifier that updates its weights based on misclassification errors.
 
-Simple Perceptron
-The Perceptron is a linear classifier that updates its weights based on misclassification erros.
-Activation function:
-    sign(u) = { +1 if u ≥ 0, -1 otherwise }
+**Activation function:**
+
+$$ \text{sign}(u) = \begin{cases} +1 & \text{if } u \geq 0 \\ -1 & \text{otherwise} \end{cases} $$
+
 Where:
-    u = Wᵀx  
-Weight update rule:
-    W ← W + η(d - y)x  
-Where:
-- η: learning rate
-- d: desired output
-- y: predicted output
 
-ADALINE (Adaptive Linear Neuron)
-ADALINE is a linear model that minimizes the Mean Squared Error (MSE) between predicted and target
-values.
+$$ u = W^T x $$
+
+**Weight update rule:**
+
+$$ W \leftarrow W + \eta(d - y)x $$
+
+Where:
+- $\eta$: learning rate
+- $d$: desired output
+- $y$: predicted output
+
+### B. ADALINE (Adaptive Linear Neuron)
+ADALINE is a linear model that minimizes the Mean Squared Error (MSE) between predicted and target values.
 Output is computed as:
-    u = Wᵀx  
+
+$$ u = W^T x $$
+
 Unlike the Perceptron, ADALINE uses continuous output during training.
-Error function:
-    MSE = (1 / 2N) Σ (d - u)²  
-Weight update rule:
-    W ← W + η(d - u)x  
 
-Training Process
-----------------
+**Error function:**
 
-Perceptron
+$$ \text{MSE} = \frac{1}{2N} \sum (d - u)^2 $$
+
+**Weight update rule:**
+
+$$ W \leftarrow W + \eta(d - u)x $$
+
+## Training Process
+
+### A. Perceptron
 - Weights initialized to zero
 - Iteratively updates weights for each training sample
 - Stops when:
     - No misclassifications occur, or
     - Maximum number of epochs is reached
+
 At each epoch:
 - Dataset is split
 - Model is trained on training set
 - Accuracy is evaluated on test set
 
-ADALINE
+### B. ADALINE
 - Weights initialized to zero
 - Uses gradient-based updates to minimize MSE
 - Training continues until:
     - Change in MSE is below a precision threshold, or
     - Maximum number of epochs is reached
+
 At each epoch:
 - Dataset is split
 - MSE is computed before and after updates
 - Accuracy is evaluated on test set
 
-Evaluation
-----------
+## Evaluation
 
 Model performance is measured using classification accuracy:
-    Accuracy = (Correct Predictions / Total Samples) × 100  
 
-Results
--------
+$$ \text{Accuracy} = \left( \frac{\text{Correct Predictions}}{\text{Total Samples}} \right) \times 100 $$
+
+## Results
 
 The system demonstrates the behavior of two fundamental learning algorithms:
-- Perceptron
+- **Perceptron**
     - Converges for linearly separable datasets
     - Updates only on misclassification
     - Binary decision boundary
-- ADALINE
+- **ADALINE**
     - Learns using continuous error minimization
     - More stable convergence behavior
     - Sensitive to learning rate and data scaling
+
 Console output includes:
 - Epoch number
 - Learning rate
 - Accuracy on test set
 
-Limitations
------------
+## Limitations
 
 - Only supports binary classifications (+1 / -1)
 - Requires linearly separable data for optimal Perceptron convergence
