@@ -1,13 +1,8 @@
-Stochastic Optimization Algorithms
-==================================
+# Stochastic Optimization Algorithms
 
-This work presents computational implementations of four stochastic optimization algorithms for
-continuous search spaces: Global Random Search, Local Random Search, Hill Climbing, and Simulated
-Annealing. Each method explores the search space using different strategies to approximate optimal
-solutions for a given objective function.
+This work presents computational implementations of four stochastic optimization algorithms for continuous search spaces: Global Random Search, Local Random Search, Hill Climbing, and Simulated Annealing. Each method explores the search space using different strategies to approximate optimal solutions for a given objective function.
 
-Introduction
-------------
+## Introduction
 
 This project implements optimization techniques with the following objectives:
 - Optimize arbitrary 2D functions (maximization or minimization)
@@ -16,88 +11,101 @@ This project implements optimization techniques with the following objectives:
 - Analyze convergence behavior of each algorithm
 - Compare global vs local search approaches
 
-Problem Representation
-----------------------
+## Problem Representation
 
 The optimization problem is defined as:
-    f(x₁, x₂)
-Where:
-- x₁, x₂ ∈ ℝ: decision variables
-- f: objective function to be minimized or maximized
-The search space is constrained by:
-    x₁ ∈ [a₁, b₁]  
-    x₂ ∈ [a₂, b₂]  
-Each algorithm attempts to find:
-    (x₁*, x₂*) such that f(x₁*, x₂*) is optimal  
-More problems can be found under `Utils/Problems.py`
 
-Visualization
--------------
+$$ f(x_1, x_2) $$
+
+Where:
+- $x_1, x_2 \in \mathbb{R}$: decision variables
+- $f$: objective function to be minimized or maximized
+
+The search space is constrained by:
+
+$$ x_1 \in [a_1, b_1] $$
+$$ x_2 \in [a_2, b_2] $$
+
+Each algorithm attempts to find:
+
+$$ (x_{1}^{}, x_{2}^{}) \text{ such that } f(x_{1}^{}, x_{2}^{}) \text{ is optimal} $$
+
+More problems can be found under `Utils/Problems.py`.
+
+## Visualization
 
 All methods include 3D visualization of the objective function:
-- Surface plot of f(x₁, x₂)
+- Surface plot of $f(x_1, x_2)$
 - Iterative plotting of candidate solutions
 - Highlighting of improved solutions over time
 
-Algorithms
-----------
+## Algorithms
 
-Global Random Search
+### A. Global Random Search
 Explores the search space by sampling candidates uniformly across the entire domain.
-Key characteristics:
+
+**Key characteristics:**
 - No locality assumption
 - High exploration capability
 - Slow convergence
-Steps:
+
+**Steps:**
 - Randomly sample candidate solutions within bounds
 - Evaluate objective function
 - Update best solution if improvement is found
 - Terminate after max iterations or stagnation
 
-Local Random Search
+### B. Local Random Search
 Performs exploration around the current best solution using Gaussian perturbations.
-Key characteristics:
+
+**Key characteristics:**
 - Local exploration
 - Faster convergence than global search
 - Sensitive to initial conditions
-Steps:
+
+**Steps:**
 - Generate candidates using normal distribution centered at current best
-- Accept candidate if improves the objective
+- Accept candidate if it improves the objective
 - Ensure candidates remain within bounds
 
-Hill Climbing
+### C. Hill Climbing
 A greedy local search method that iteratively improves the solution by exploring nearby candidates.
-Key characteristics:
+
+**Key characteristics:**
 - Exploits local gradients
 - Fast convergence
 - Prone to local optima
-Steps:
+
+**Steps:**
 - Start from an initial solution
 - Generate multiple local candidates
 - Move to the first improving candidate
 - Repeat until no improvement or dropout condition
 
-Simulated Annealing
+### D. Simulated Annealing
 A probabilistic method that allows temporary acceptance of worse solutions to escape local optima.
-Key characteristics:
+
+**Key characteristics:**
 - Balances exploration and exploitation
 - Uses temperature parameter to control randomness
 - Capable of escaping local minima
-Acceptance criterion:
-    Accept if:
-    - Improvement, or  
-    - With probability P = exp(-(Δf / T))  
+
+**Acceptance criterion:**
+Accept if:
+- Improvement, or  
+- With probability $P = \exp\left(-\frac{\Delta f}{T}\right)$
+
 Where:
-- Δf: change in objective value
-- T: temperature
-Steps:
+- $\Delta f$: change in objective value
+- $T$: temperature
+
+**Steps:**
 - Generate local candidate
 - Evaluate objective
 - Accept based on probability criterion
 - Gradually decrease temperature
 
-Algorithm Workflow
-------------------
+## Algorithm Workflow
 
 All methods follow a general structure:
 1. Initialize candidate solution
@@ -110,20 +118,20 @@ All methods follow a general structure:
     - Maximum iterations
     - Stagnation (dropout condition)
 
-Results
--------
+## Results
 
-The system demonstrates distinc behaviors across optimization strategies:
-- Global Random Search:
+The system demonstrates distinct behaviors across optimization strategies:
+
+- **Global Random Search:**
     - Wide exploration of search space
     - Slow improvement rate
-- Local Random Search:
+- **Local Random Search:**
     - Efficient local refinement
     - Limited global awareness
-- Hill Climbing:
+- **Hill Climbing:**
     - Rapid convergence
-    - Sensitive of local optima
-- Simulated Annealing:
+    - Sensitive to local optima
+- **Simulated Annealing:**
     - Robust against local minima
     - Gradual convergence controlled by temperature
 
@@ -135,14 +143,13 @@ Visualization shows:
 - Evolution of candidate solutions
 - Convergence toward optimal regions
 
-Limitations
------------
+## Limitations
 
-- Limited to 2D functions (x₁, x₂)
+- Limited to 2D functions ($x_1, x_2$)
 - No adaptive parameter tuning
 - Fixed dropout strategy for stagnation detection
-- Performance dependent on hyperparamets:
-    - Step size (ε, σ)
+- Performance dependent on hyperparameters:
+    - Step size ($\epsilon, \sigma$)
     - Temperature schedule
     - Iteration limits
 - No comparison metrics between algorithms
